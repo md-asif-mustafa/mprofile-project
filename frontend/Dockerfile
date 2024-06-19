@@ -1,26 +1,32 @@
-# Use the official Node.js image as a base
-FROM node:14
+# Stage 1: Build the application
+FROM node:14 AS BUILD_IMAGE
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+# Set the working directory
+WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install the dependencies
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code to the working directory
+# Copy the rest of the application source code
 COPY . .
 
-# Build the application
+# Build the application (if applicable)
 RUN npm run build
 
-# Install a simple HTTP server to serve static files
-RUN npm install -g serve
+# Stage 2: Run the application
+FROM node:14-alpine
 
-# Expose the port the application will run on
+# Set the working directory
+WORKDIR /app
+
+# Copy the built application from the previous stage
+COPY --from=BUILD_IMAGE /app .
+
+# Expose the port the app runs on
 EXPOSE 3000
 
 # Command to run the application
-CMD ["serve", "-s", "build", "-l", "3000"]
+CMD ["npm", "start"]
