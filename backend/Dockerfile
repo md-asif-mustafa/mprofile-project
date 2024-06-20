@@ -2,7 +2,7 @@
 FROM node:14
 
 # Create and change to the app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./
